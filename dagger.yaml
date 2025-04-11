@@ -1,0 +1,25 @@
+project:
+            name: localstack-demo
+          
+          pipelines:
+            run:
+              steps:
+                - name: Start LocalStack
+                  module: github.com/localstack/localstack-dagger-module
+                  call: start
+                  args:
+                    configuration: SERVICES=s3
+                    docker-sock: /var/run/docker.sock
+                  as: localstack
+          
+                - name: Run AWS Script
+                  container:
+                    image: amazon/aws-cli
+                    env:
+                      AWS_ACCESS_KEY_ID: test
+                      AWS_SECRET_ACCESS_KEY: test
+                      AWS_REGION: us-east-1
+                    mounts:
+                      - source: ./aws-script.sh
+                        target: /aws-script.sh
+                    entrypoint: ["/bin/sh", "/aws-script.sh"]
